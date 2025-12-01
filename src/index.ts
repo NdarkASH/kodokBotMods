@@ -1,10 +1,11 @@
-import { config } from "./config";
-import { Client, GatewayIntentBits, Collection, Interaction } from "discord.js";
-import { readdirSync } from "fs";
-import path from "path";
-import { commandHandler } from "./commandHandler";
-import { registerCommands } from "./register";
+import { config } from "./configs/config";
+import { Client, GatewayIntentBits, Collection, Interaction, Events } from "discord.js";
 import mongoose from "mongoose";
+import { commandHandler } from "../src/utils/commandHandler";
+import { registerCommands } from "../src/configs/register";
+import { loadCommands } from "../src/loaders/loadCommands";
+import { loadReplies } from "../src/loaders/loadReplies";
+import path from "path";
 
 interface ExtendedClient extends Client {
     commands: Collection<string, commandHandler>;
@@ -12,49 +13,23 @@ interface ExtendedClient extends Client {
 
 const client = new Client({
     intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.MessageContent,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.MessageContent,
     ],
 }) as ExtendedClient;
 
 client.commands = new Collection<string, commandHandler>();
 
-// Fungsi untuk load semua command
-function loadCommands(dir: string) {
-    const files = readdirSync(dir).filter(f => f.endsWith('.ts') || f.endsWith('.js'));
+// Load commands & replies
+loadCommands(client.commands, path.join(__dirname, "commands"));
 
-    for (const file of files) {
-    const command: commandHandler = require(path.join(dir, file)).default;
+const replies: any[] = [];
+loadReplies(replies, path.join(__dirname, "replies"));
 
-    if (!command?.data?.name || !command?.execute) {
-        console.warn(`[WARNING] The command at ${file} is missing "data" or "execute".`);
-        continue;
-    }
-
-    client.commands.set(command.data.name, command);
-    console.log(`Loaded command: ${file}`);
-    }
-}
-
-// Load semua command dari folder 'commands'
-loadCommands(path.join(__dirname, 'commands'));
-
-client.on('clientReady', async () => {
-    try {
-        if (!config.mongoDB) throw new Error('MongoDB connection string not defined.');
-        await mongoose.connect(config.mongoDB, { ssl: true, tlsInsecure: true });
-        console.log('Connected to MongoDB');
-
-        console.log(`Logged in as ${client.user?.tag}`);
-        await registerCommands();
-    } catch (error) {
-        console.error('Error during startup:', error);
-    }
-});
-
-client.on('interactionCreate', async (interaction: Interaction) => {
+// Event: Commands
+client.on("interactionCreate", async (interaction: Interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
@@ -63,40 +38,35 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     try {
         await command.execute(interaction);
     } catch (error) {
-    console.error('Error executing command:', error);
-    if (interaction.isRepliable()) {
-        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        console.error("Error executing command:", error);
+        if (interaction.isRepliable()) {
+            await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
         }
     }
 });
 
-import { Events } from "discord.js";
-
-// List stiker (ganti dengan ID stiker server-mu)
-const WELCOME_STICKERS = [
-    "STICKER_ID_1",
-    "STICKER_ID_2",
-    "STICKER_ID_3"
-];
-
+// Event: Replies
 client.on(Events.MessageCreate, async (message) => {
-    // Jangan balas bot sendiri
     if (message.author.bot) return;
 
-    // Cek kata "welcome" (case-insensitive)
-    if (/welcome/i.test(message.content)) {
-        try {
-            const randomSticker = WELCOME_STICKERS[Math.floor(Math.random() * WELCOME_STICKERS.length)];
-
-            await message.reply({
-                content: "Selamat datang! 🎉",
-                stickers: [randomSticker]
-            });
-        } catch (err) {
-            console.error("Gagal mengirim stiker:", err);
+    for (const reply of replies) {
+        if (reply.keywords.some((kw: RegExp) => kw.test(message.content))) {
+            await reply.execute(message);
+            break;
         }
     }
 });
 
+// MongoDB + login
+client.once("ready", async () => {
+    try {
+        if (!config.mongoDB) throw new Error("MongoDB connection string not defined.");
+        await mongoose.connect(config.mongoDB, { ssl: true, tlsInsecure: true });
+        console.log(`Logged in as ${client.user?.tag}`);
+        await registerCommands();
+    } catch (err) {
+        console.error("Error during startup:", err);
+    }
+});
 
 client.login(config.botToken);

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from "discord.js";
-import { commandHandler } from "../commandHandler";
+import { commandHandler } from "../utils/commandHandler";
 import { getMemberFromGuild } from "../utils/getMember";
 import Warning from "../schemas/members"; // model Warning kamu
 

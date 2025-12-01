@@ -2,7 +2,7 @@ import { REST, Routes } from "discord.js";
 import { config } from "./config";
 import { readdirSync } from "fs";
 import path from "path";
-import { commandHandler } from "./commandHandler";
+import { commandHandler } from "../utils/commandHandler";
 
 const clientId = config.botId!;
 const guildId = config.testServerId!;
