@@ -21,7 +21,6 @@ const command: commandHandler = {
 
     async execute(interaction: ChatInputCommandInteraction) {
         const user = interaction.options.getUser("user", true);
-        const warnId = interaction.options.getString("warn_id", true);
 
         // Cek member di guild
         const member = getMemberFromGuild(interaction.guild, user);
@@ -29,8 +28,7 @@ const command: commandHandler = {
             return void interaction.reply({ content: "❌ Member tidak ditemukan di server ini.", ephemeral: true });
 
         // Cari warn berdasarkan _id
-        const warnData = await Warning.findOne({
-            _id: warnId,
+        const warnData = await Warning.findByIdAndDelete({
             userId: member.id,
             guildId: interaction.guild!.id
         });
@@ -42,7 +40,7 @@ const command: commandHandler = {
             });
 
         // Hapus warn
-        await Warning.deleteOne({ _id: warnId });
+        await Warning.deleteOne({ userId: member.id, guildId: interaction.guild!.id });
 
         // Hitung ulang total warn user
         const totalWarns = await Warning.countDocuments({
@@ -54,8 +52,6 @@ const command: commandHandler = {
         content:
             `🗑️ Warn berhasil dihapus!\n` +
             `**User:** ${user.tag}\n` +
-            `**Warn ID:** ${warnId}\n` +
-            `**Reason:** ${warnData.reason}\n` +
             `**Sisa total warn:** ${totalWarns}`
     });
     }
