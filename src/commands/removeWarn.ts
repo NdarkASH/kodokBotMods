@@ -23,7 +23,7 @@ const command: commandHandler = {
             return void interaction.reply({ content: "❌ Member tidak ditemukan di server ini.", ephemeral: true });
 
         // Cari warn berdasarkan _id
-        const warnData = await Warning.findByIdAndDelete({
+        const warnData = await Warning.findById({
             userId: member.id,
             guildId: interaction.guild!.id
         });
