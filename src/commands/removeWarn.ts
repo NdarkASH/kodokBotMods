@@ -12,11 +12,6 @@ const command: commandHandler = {
                 .setDescription("The member whose warn will be removed")
                 .setRequired(true)
         )
-        .addStringOption(option =>
-            option.setName("warn_id")
-                .setDescription("The warn ID (_id) to remove")
-                .setRequired(true)
-        )
         .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
 
     async execute(interaction: ChatInputCommandInteraction) {
