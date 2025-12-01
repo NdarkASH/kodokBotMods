@@ -2,7 +2,6 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits }
 import { commandHandler } from "../commandHandler";
 import { getMemberFromGuild } from "../utils/getMember";
 import Warning from "../schemas/members"; // model Warning kamu
-import { warn } from "console";
 
 const command: commandHandler = {
     data: new SlashCommandBuilder()
@@ -16,24 +15,55 @@ const command: commandHandler = {
         .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
 
     async execute(interaction: ChatInputCommandInteraction) {
+    try {
         const user = interaction.options.getUser("user", true);
 
         const member = getMemberFromGuild(interaction.guild, user);
-        try {
-            const getMemberWarns = await Warning.find({
-                userId: member?.id,
-                guildId: interaction.guild!.id
-            })
 
-            if (getMemberWarns.length === 0) {
-                return void interaction.reply({ content: `${user.tag} has no warns.`, ephemeral: true });
-            }
-            await Warning.deleteMany({ userId: member?.id, guildId: interaction.guild!.id});
-        } catch (err) {
-            console.error(err);
-            return void interaction.reply({ content: "❌ Failed to retrieve warns for the member.", ephemeral: true });
+        if (!member) {
+            await interaction.reply({
+                content: "❌ Member tidak ditemukan di server.",
+                ephemeral: true
+            });
+            return;
+        }
+
+        const warns = await Warning.find({
+            userId: member.id,
+            guildId: interaction.guild!.id
+        });
+
+        if (warns.length === 0) {
+            await interaction.reply({
+                content: `${user.tag} tidak memiliki warn.`,
+                ephemeral: true
+            });
+            return;
+        }
+
+        await Warning.deleteMany({
+            userId: member.id,
+            guildId: interaction.guild!.id
+        });
+
+        await interaction.reply({
+            content: `🗑️ Semua warn untuk **${user.tag}** berhasil dihapus.`,
+            ephemeral: true
+        });
+
+    } catch (err) {
+        console.error(err);
+
+        // Pastikan selalu reply meskipun error
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
+                content: "❌ Terjadi error saat memproses command.",
+                ephemeral: true
+            });
         }
     }
+}
+
 };
 
 export default command;
