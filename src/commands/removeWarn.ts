@@ -28,7 +28,7 @@ const command: commandHandler = {
             if (getMemberWarns.length === 0) {
                 return void interaction.reply({ content: `${user.tag} has no warns.`, ephemeral: true });
             }
-            await Warning.deleteOne({ userId: member?.id, guildId: interaction.guild!.id});
+            await Warning.deleteMany({ userId: member?.id, guildId: interaction.guild!.id});
         } catch (err) {
             console.error(err);
             return void interaction.reply({ content: "❌ Failed to retrieve warns for the member.", ephemeral: true });
