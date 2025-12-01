@@ -22,33 +22,9 @@ const command: commandHandler = {
         if (!member)
             return void interaction.reply({ content: "❌ Member tidak ditemukan di server ini.", ephemeral: true });
 
-        // Cari warn berdasarkan _id
-        const warnData = await Warning.findById({
-            userId: member.id,
-            guildId: interaction.guild!.id
-        });
-
-        if (!warnData)
-            return void interaction.reply({
-                content: "❌ Warn ID tidak ditemukan atau tidak cocok dengan user.",
-                ephemeral: true
-            });
-
         // Hapus warn
         await Warning.deleteOne({ userId: member.id, guildId: interaction.guild!.id });
 
-        // Hitung ulang total warn user
-        const totalWarns = await Warning.countDocuments({
-            userId: member.id,
-            guildId: interaction.guild!.id
-        });
-
-        await interaction.reply({
-        content:
-            `🗑️ Warn berhasil dihapus!\n` +
-            `**User:** ${user.tag}\n` +
-            `**Sisa total warn:** ${totalWarns}`
-    });
     }
 };
 
