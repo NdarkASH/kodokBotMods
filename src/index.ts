@@ -1,10 +1,10 @@
 import { config } from "./configs/config";
 import { Client, GatewayIntentBits, Collection, Interaction, Events } from "discord.js";
 import mongoose from "mongoose";
-import { commandHandler } from "../src/utils/commandHandler";
-import { registerCommands } from "../src/configs/register";
-import { loadCommands } from "../src/loaders/loadCommands";
-import { loadReplies } from "../src/loaders/loadReplies";
+import { commandHandler } from "./utils/commandHandler";
+import { registerCommands } from "./configs/register";
+import { loadCommands } from "./loaders/loadCommands";
+import { loadReplies } from "./loaders/loadReplies";
 import path from "path";
 
 interface ExtendedClient extends Client {
