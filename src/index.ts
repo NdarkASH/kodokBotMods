@@ -70,4 +70,33 @@ client.on('interactionCreate', async (interaction: Interaction) => {
     }
 });
 
+import { Events } from "discord.js";
+
+// List stiker (ganti dengan ID stiker server-mu)
+const WELCOME_STICKERS = [
+    "STICKER_ID_1",
+    "STICKER_ID_2",
+    "STICKER_ID_3"
+];
+
+client.on(Events.MessageCreate, async (message) => {
+    // Jangan balas bot sendiri
+    if (message.author.bot) return;
+
+    // Cek kata "welcome" (case-insensitive)
+    if (/welcome/i.test(message.content)) {
+        try {
+            const randomSticker = WELCOME_STICKERS[Math.floor(Math.random() * WELCOME_STICKERS.length)];
+
+            await message.reply({
+                content: "Selamat datang! 🎉",
+                stickers: [randomSticker]
+            });
+        } catch (err) {
+            console.error("Gagal mengirim stiker:", err);
+        }
+    }
+});
+
+
 client.login(config.botToken);
