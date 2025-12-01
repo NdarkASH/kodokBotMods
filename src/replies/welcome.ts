@@ -2,22 +2,31 @@ import { Message } from "discord.js";
 
 export default {
     name: "welcomeReply",
-    keywords: [/welcome/i], // kata kunci yang memicu reply
-    stickers: [
-        "STICKER_ID_1",
-        "STICKER_ID_2",
-        "STICKER_ID_3"
+
+    // Keyword yang memicu fitur welcome
+    keywords: [
+        /welcome/i,
+        /selamat datang/i,
+        /wlcm/i
     ],
+
+    // List sticker ID — ganti dengan ID stiker server kamu
+    stickers: [
+        "1445139760036184105",
+    ],
+
     async execute(message: Message) {
         try {
-            const randomSticker = this.stickers[Math.floor(Math.random() * this.stickers.length)];
+            // Pilih stiker random
+            const randomSticker =
+                this.stickers[Math.floor(Math.random() * this.stickers.length)];
 
             await message.reply({
-                content: "Selamat datang! 🎉",
+                content: `🎉 Welcome <@${message.author.id}>!`,
                 stickers: [randomSticker]
             });
         } catch (err) {
-            console.error(`Gagal mengirim stiker untuk ${message.content}:`, err);
+            console.error("Gagal mengirim welcome sticker:", err);
         }
     }
 };
