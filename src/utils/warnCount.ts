@@ -26,16 +26,9 @@ export async function handleWarn(member: GuildMember, interaction: CommandIntera
             }
             break;
         case 5:
-            // if (member.kickable) {
-            //     await member.kick("Reached 5 warns");
-            // }
-            console.log("Reached 5 warns - kick action is currently disabled.");
-            break;
-        case 7:
-            // if (member.bannable) {
-            //     await member.ban({ reason: "Reached 7 warns" });
-            // }
-            console.log("Reached 7 warns - ban action is currently disabled.");
+            if (member.kickable) {
+                await member.kick("Reached 5 warns");
+            }
             break;
     }
 
