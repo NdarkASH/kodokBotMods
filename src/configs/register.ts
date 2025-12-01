@@ -34,7 +34,7 @@ export const registerCommands = async () => {
     try {
         console.log(`Started refreshing ${commands.length} application commands.`);
 
-        const data = await rest.put(
+        await rest.put(
             Routes.applicationGuildCommands(clientId, guildId),
             { body: commands }
         );
