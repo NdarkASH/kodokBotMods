@@ -2,6 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits }
 import { commandHandler } from "../commandHandler";
 import { getMemberFromGuild } from "../utils/getMember";
 import Warning from "../schemas/members"; // model Warning kamu
+import { warn } from "console";
 
 const command: commandHandler = {
     data: new SlashCommandBuilder()
@@ -17,14 +18,22 @@ const command: commandHandler = {
     async execute(interaction: ChatInputCommandInteraction) {
         const user = interaction.options.getUser("user", true);
 
-        // Cek member di guild
         const member = getMemberFromGuild(interaction.guild, user);
-        if (!member)
-            return void interaction.reply({ content: "❌ Member tidak ditemukan di server ini.", ephemeral: true });
+        try {
+            const getMemberWarns = await Warning.find({
+                userId: member?.id,
+                guildId: interaction.guild!.id
+            })
 
-        // Hapus warn
-        await Warning.deleteOne({ userId: member.id, guildId: interaction.guild!.id });
-
+            await Warning.findOne({
+                userId: member?.id,
+                guildId: interaction.guild!.id,
+                _id: getMemberWarns[0]._id
+            }).deleteOne();
+        } catch (err) {
+            console.error(err);
+            return void interaction.reply({ content: "❌ Failed to retrieve warns for the member.", ephemeral: true });
+        }
     }
 };
 
