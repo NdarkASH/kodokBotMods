@@ -14,7 +14,7 @@ export default {
 
         const gifs = [
             "https://media.tenor.com/2roX3uxz_68AAAAC/anime-head-pat.gif",
-            "https://tenor.com/view/vtuber-anime-shylily-bao-foxplushy-gif-6851130087983678188",
+            "https://tenor.com/ikgpzlRmGKe.gif",
         ];
 
         const gif = gifs[Math.floor(Math.random() * gifs.length)];
