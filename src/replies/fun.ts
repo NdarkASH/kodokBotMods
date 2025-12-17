@@ -15,6 +15,7 @@ export default {
         const gifs = [
             "https://media.tenor.com/2roX3uxz_68AAAAC/anime-head-pat.gif",
             "https://media.tenor.com/7hV_XiuhC2gAAAAi/headpat-comforting.gif",
+            "https://i.pinimg.com/originals/f4/1b/39/f41b3974036070fd1c498acf17a3a42e.gif",
         ];
 
         const gif = gifs[Math.floor(Math.random() * gifs.length)];
