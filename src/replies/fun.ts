@@ -21,7 +21,7 @@ export default {
 
         const embed = new EmbedBuilder()
             .setImage(gif)
-            .setColor(0xFFC0CB); // optional
+            .setColor(0xFFC0CB);
 
         await message.reply({
             content: `✨ *pat pat* ${target} 💖`,
